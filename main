@@ -1,7 +1,21 @@
 import telebot
 import webbrowser
+from telebot import types
 
 bot = telebot.TeleBot('7486869609:AAGw8OCiqboXcp1L1VKnkbQ3ZjuFH4owooY')
+
+@bot.message_handler(content_type='photo')
+def get_photo(message):
+    bot.reply_to(message, 'What a beautiful photo')
+
+@bot.message_handler(content_type='video')
+def get_photo(message):
+    bot.reply_to(message, 'What a beautiful video')
+
+
+@bot.message_handler(content_type='audio')
+def get_photo(message):
+    bot.reply_to(message, 'What a beautiful audio')
 
 @bot.message_handler(commands = ['site', 'website'])
 def site(message):
@@ -16,14 +30,18 @@ def main(message):
 
 @bot.message_handler(commands = ['help'])
 def help(message):
-    bot.send_message(message.chat.id, 'text for help')
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton('code of bot', url='https://github.com/RomaIliev/telegram_bot')
+    btn2 = types.InlineKeyboardButton('have a questions', url='https://google.com')
+    markup.row(btn1, btn2)
+    bot.send_message(message.chat.id, 'What help you need?', reply_markup=markup)
 
 @bot.message_handler()
 def info(message):
     if message.text.lower() == 'hello' or message.text.lower() == 'привет':
         bot.send_message(message.chat.id, f'Hello, {message.from_user.first_name}')
     elif message.text.lower() == 'id':
-        bot.reply_to(message, f'ID: {message.from_user.idx  }')
+        bot.reply_to(message, f'ID: {message.from_user.id}')
 
 
 bot.polling(none_stop = True)
