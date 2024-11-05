@@ -1,8 +1,35 @@
 import telebot
 import webbrowser
 from telebot import types
+import requests
+import json
 
 bot = telebot.TeleBot('7486869609:AAGw8OCiqboXcp1L1VKnkbQ3ZjuFH4owooY')
+
+name = None
+API = '1972ab11aab420ccc91b8619d0153e70'
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.send_message(message.chat.id, f'Hello, {message.from_user.first_name}')
+
+@bot.message_handler(commands=['weather'])
+def wet(message):
+    bot.send_message(message.chat.id, 'Print your city name in English, Ukrainian and Russian languages')
+    bot.register_next_step_handler(message, weather)
+
+def weather(message):
+    city = message.text.strip().lower()
+    res = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
+    if res.status_code == 200:
+        data = json.loads(res.text)
+        temp = data['main']['temp']
+        bot.send_message(message.chat.id, f'Temperature now: {temp}')
+        image = 'sun.png' if temp > 5.0 else 'suninclouds.png'
+        file = open('./' + image, 'rb')
+        bot.send_photo(message.chat.id, file)
+    else:
+        bot.reply_to(message, 'Wrong city name')
 
 @bot.message_handler(content_types=['photo'])
 def get_photo(message):
@@ -31,12 +58,6 @@ def delete(callback):
 @bot.message_handler(commands = ['site', 'website'])
 def site(message):
     webbrowser.open('https://github.com/RomaIliev')
-
-
-
-@bot.message_handler(commands = ['start'])
-def main(message):
-    bot.send_message(message.chat.id, f'Hello, {message.from_user.first_name}')
 
 
 @bot.message_handler(commands = ['help'])
